@@ -1,6 +1,3 @@
 Flask==2.3.3
-numpy
-scikit-learn
-pandas
-Werkzeug
 gunicorn==21.2.0
+
