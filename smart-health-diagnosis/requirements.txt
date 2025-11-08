@@ -3,3 +3,4 @@ numpy
 scikit-learn
 pandas
 Werkzeug
+gunicorn==21.2.0
