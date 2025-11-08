@@ -1,0 +1,346 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: white;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.hero-section {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.hero-content h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.cta-button {
+    display: inline-block;
+    background: #667eea;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.feature-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.feature-card h3 {
+    margin-bottom: 10px;
+    color: #667eea;
+}
+
+.symptoms-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.symptoms-selection {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.search-box {
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.symptoms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.symptom-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+}
+
+.symptom-checkbox input {
+    margin-right: 10px;
+}
+
+.symptom-checkbox label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.selected-symptoms {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.selected-list {
+    min-height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 2px dashed #e1e5e9;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.selected-symptom {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+.selected-symptom button {
+    background: #ff4757;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.diagnose-btn, .clear-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.diagnose-btn {
+    background: #667eea;
+    color: white;
+}
+
+.diagnose-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.clear-btn {
+    background: #ffa502;
+    color: white;
+}
+
+.result-container {
+    margin-top: 30px;
+}
+
+.diagnosis-result {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.diagnosis-result.high {
+    border-left: 5px solid #ff4757;
+}
+
+.diagnosis-result.medium {
+    border-left: 5px solid #ffa502;
+}
+
+.diagnosis-result.low {
+    border-left: 5px solid #2ed573;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.severity-badge {
+    padding: 5px 15px;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+}
+
+.severity-badge.high {
+    background: #ff4757;
+}
+
+.severity-badge.medium {
+    background: #ffa502;
+}
+
+.severity-badge.low {
+    background: #2ed573;
+}
+
+.result-details {
+    margin-bottom: 25px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.result-item label {
+    font-weight: bold;
+}
+
+.disease {
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.confidence {
+    color: #2ed573;
+    font-weight: bold;
+}
+
+.recommendations ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.recommendations li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f2f6;
+}
+
+.recommendations li:before {
+    content: "✅ ";
+}
+
+.disclaimer {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff9e6;
+    border-radius: 8px;
+    border-left: 4px solid #ffa502;
+}
+
+.error-message {
+    background: #ffe6e6;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #ff4757;
+}
+
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.back-btn, .home-btn {
+    background: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    color: white;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .symptoms-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .features {
+        grid-template-columns: 1fr;
+    }
+    
+    .navigation {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

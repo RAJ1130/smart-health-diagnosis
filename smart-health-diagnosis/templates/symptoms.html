@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinical Symptom Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .clinical-header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        
+        .symptoms-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .selected-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .symptoms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .symptom-item {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .symptom-item.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        .symptom-item.emergency {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .selected-list {
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .selected-symptom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .selected-symptom.emergency {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .clinical-btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .clinical-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .clinical-btn.secondary {
+            background: #95a5a6;
+        }
+        
+        .clinical-btn.emergency {
+            background: #e74c3c;
+        }
+        
+        .result-container {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .clinical-report {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .report-header {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .diagnosis-section {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .severity-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .severity-mild { background: #27ae60; }
+        .severity-moderate { background: #f39c12; }
+        .severity-severe { background: #e74c3c; }
+        
+        .red-flag-alert {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="clinical-header">
+            <h1>🩺 Clinical Symptom Assessment</h1>
+            <p>Select all symptoms you are currently experiencing. Emergency symptoms are highlighted in red.</p>
+        </div>
+
+        <div class="assessment-grid">
+            <div class="symptoms-panel">
+                <div class="search-box">
+                    <input type="text" id="symptomSearch" placeholder="Search symptoms...">
+                </div>
+                
+                <div class="symptoms-grid" id="symptomsGrid">
+                    {% for symptom in symptoms %}
+                    {% set is_emergency = symptom in ['chest_pain', 'difficulty_breathing', 'severe_bleeding', 'loss_consciousness', 'sudden_weakness', 'severe_headache', 'high_fever'] %}
+                    <div class="symptom-item {% if is_emergency %}emergency{% endif %}" 
+                         onclick="toggleSymptom(this)" 
+                         data-symptom="{{ symptom }}">
+                        {{ symptom.replace('_', ' ').title() }}
+                        {% if is_emergency %} 🚨{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="selected-panel">
+                <h3>Selected Symptoms</h3>
+                <div class="selected-list" id="selectedList"></div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Duration of Symptoms:</label>
+                    <select id="duration" style="width: 100%; padding: 8px; margin-top: 5px;">
+                        <option value="24">Less than 24 hours</option>
+                        <option value="48" selected>1-2 days</option>
+                        <option value="72">3 days</option>
+                        <option value="168">4-7 days</option>
+                        <option value="336">1-2 weeks</option>
+                        <option value="720">More than 2 weeks</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>Age Group:</label>
+                    <select id="ageGroup" style="width: 100%; padding: 8px; margin-top: 5px;">
+                        <option value="child">Child (0-12)</option>
+                        <option value="teen">Teenager (13-19)</option>
+                        <option value="adult" selected>Adult (20-64)</option>
+                        <option value="senior">Senior (65+)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button onclick="performAssessment()" class="clinical-btn" id="assessBtn" disabled>
+                        Perform Clinical Assessment
+                    </button>
+                    <button onclick="clearSelection()" class="clinical-btn secondary">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <!-- Results will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        let selectedSymptoms = new Set();
+
+        function formatSymptom(symptom) {
+            return symptom.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+        }
+
+        // Search functionality
+        document.getElementById('symptomSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const symptoms = document.querySelectorAll('.symptom-item');
+            
+            symptoms.forEach(symptom => {
+                const symptomText = symptom.textContent.toLowerCase();
+                if (symptomText.includes(searchTerm)) {
+                    symptom.style.display = 'block';
+                } else {
+                    symptom.style.display = 'none';
+                }
+            });
+        });
+
+        function toggleSymptom(element) {
+            const symptom = element.getAttribute('data-symptom');
+            
+            if (selectedSymptoms.has(symptom)) {
+                selectedSymptoms.delete(symptom);
+                element.classList.remove('selected');
+            } else {
+                selectedSymptoms.add(symptom);
+                element.classList.add('selected');
+            }
+            
+            updateSelectedList();
+            updateAssessmentButton();
+        }
+
+        function updateSelectedList() {
+            const selectedList = document.getElementById('selectedList');
+            selectedList.innerHTML = '';
+            
+            selectedSymptoms.forEach(symptom => {
+                const isEmergency = ['chest_pain', 'difficulty_breathing', 'severe_bleeding', 
+                                   'loss_consciousness', 'sudden_weakness', 'severe_headache', 
+                                   'high_fever'].includes(symptom);
+                
+                const symptomElement = document.createElement('div');
+                symptomElement.className = `selected-symptom ${isEmergency ? 'emergency' : ''}`;
+                symptomElement.innerHTML = `
+                    ${formatSymptom(symptom)}
+                    <button onclick="removeSymptom('${symptom}')" style="background: none; border: none; cursor: pointer; color: #666;">×</button>
+                `;
+                selectedList.appendChild(symptomElement);
+            });
+        }
+
+        function removeSymptom(symptom) {
+            selectedSymptoms.delete(symptom);
+            const element = document.querySelector(`[data-symptom="${symptom}"]`);
+            if (element) {
+                element.classList.remove('selected');
+            }
+            updateSelectedList();
+            updateAssessmentButton();
+        }
+
+        function updateAssessmentButton() {
+            const assessBtn = document.getElementById('assessBtn');
+            assessBtn.disabled = selectedSymptoms.size === 0;
+        }
+
+        function clearSelection() {
+            selectedSymptoms.clear();
+            document.querySelectorAll('.symptom-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            updateSelectedList();
+            updateAssessmentButton();
+        }
+
+        async function performAssessment() {
+            const assessBtn = document.getElementById('assessBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            assessBtn.disabled = true;
+            assessBtn.textContent = 'Analyzing...';
+            resultContainer.style.display = 'none';
+            
+            try {
+                const duration = document.getElementById('duration').value;
+                const ageGroup = document.getElementById('ageGroup').value;
+                
+                const response = await fetch('/diagnose', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    'X-Clinical-Assessment': 'true'
+                    },
+                    body: JSON.stringify({
+                        symptoms: Array.from(selectedSymptoms),
+                        duration_hours: parseInt(duration),
+                        age_group: ageGroup
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayClinicalReport(result);
+                } else {
+                    throw new Error(result.error || 'Assessment failed');
+                }
+            } catch (error) {
+                resultContainer.innerHTML = `
+                    <div class="clinical-report">
+                        <div class="red-flag-alert">
+                            <h3>❌ Assessment Error</h3>
+                            <p>${error.message}</p>
+                        </div>
+                    </div>
+                `;
+                resultContainer.style.display = 'block';
+            } finally {
+                assessBtn.disabled = false;
+                assessBtn.textContent = 'Perform Clinical Assessment';
+            }
+        }
+
+        function displayClinicalReport(result) {
+            const resultContainer = document.getElementById('resultContainer');
+            const assessment = result.assessment;
+            
+            let redFlagsHTML = '';
+            if (assessment.red_flags.length > 0) {
+                redFlagsHTML = `
+                    <div class="red-flag-alert">
+                        <h3>🚨 RED FLAG SYMPTOMS IDENTIFIED</h3>
+                        <p><strong>Emergency Symptoms:</strong> ${assessment.red_flags.join(', ').replace(/_/g, ' ')}</p>
+                        <p><strong>Action Required:</strong> Immediate medical evaluation recommended</p>
+                    </div>
+                `;
+            }
+            
+            let primaryDiagnosisHTML = '';
+            if (assessment.primary_diagnosis) {
+                const pd = assessment.primary_diagnosis;
+                primaryDiagnosisHTML = `
+                    <div class="diagnosis-section">
+                        <h3>Primary Diagnosis</h3>
+                        <p><strong>Condition:</strong> ${pd.condition_name}</p>
+                        <p><strong>ICD-10 Code:</strong> ${pd.icd10_code}</p>
+                        <p><strong>Confidence:</strong> ${pd.confidence}</p>
+                        <p><strong>Evidence:</strong> ${pd.supporting_evidence}</p>
+                    </div>
+                `;
+            }
+            
+            let differentialHTML = '';
+            if (assessment.differential_diagnosis.length > 0) {
+                differentialHTML = `
+                    <div style="margin: 20px 0;">
+                        <h4>Differential Diagnosis</h4>
+                        <ul>
+                            ${assessment.differential_diagnosis.map(diff => `<li>${diff}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            resultContainer.innerHTML = `
+                <div class="clinical-report">
+                    <div class="report-header">
+                        <h2>Clinical Assessment Report</h2>
+                        <p>Generated: ${result.timestamp}</p>
+                        <p>Symptoms Analyzed: ${result.symptoms_analyzed} | Red Flags: ${result.red_flag_count}</p>
+                    </div>
+                    
+                    ${redFlagsHTML}
+                    
+                    ${primaryDiagnosisHTML}
+                    
+                    <div style="margin: 20px 0;">
+                        <h3>Clinical Impression</h3>
+                        <p>${assessment.clinical_impression}</p>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <h3>Severity Assessment</h3>
+                        <span class="severity-indicator severity-${assessment.severity.toLowerCase().replace(' ', '-')}">
+                            ${assessment.severity}
+                        </span>
+                    </div>
+                    
+                    ${differentialHTML}
+                    
+                    <div style="margin: 20px 0;">
+                        <h3>Treatment Recommendations</h3>
+                        <ul>
+                            ${assessment.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <h3>Follow-up Advice</h3>
+                        <p>${assessment.follow_up_advice}</p>
+                    </div>
+                    
+                    <div class="red-flag-alert">
+                        <h3>When to Seek Immediate Care</h3>
+                        <p>${assessment.when_to_seek_care}</p>
+                    </div>
+                    
+                    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                        <strong>Disclaimer:</strong> This clinical assessment is based on reported symptoms and pattern recognition. 
+                        It does not replace comprehensive medical evaluation. Always consult with healthcare professionals for 
+                        accurate diagnosis and treatment planning.
+                    </div>
+                </div>
+            `;
+            
+            resultContainer.style.display = 'block';
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
