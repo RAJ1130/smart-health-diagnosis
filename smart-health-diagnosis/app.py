@@ -1,104 +1,70 @@
 from flask import Flask, request, jsonify
-import random
 import os
 
 app = Flask(__name__)
 
-# Comprehensive medical database
+# Medical database
 MEDICAL_CONDITIONS = {
     'common_cold': {
-        'name': 'Common Cold (Viral Rhinitis)',
-        'symptoms': ['runny_nose', 'sneezing', 'sore_throat', 'cough', 'congestion', 'mild_fever', 'headache', 'body_aches', 'fatigue'],
-        'key_symptoms': ['runny_nose', 'sneezing', 'congestion'],
-        'treatment': [
-            'Rest and increased fluid intake (8-10 glasses water daily)',
-            'Saline nasal spray 2-3 times daily for congestion',
-            'Acetaminophen 500-1000mg every 6 hours as needed for pain/fever',
-            'Ibuprofen 200-400mg every 6-8 hours for inflammation',
-            'Warm salt water gargles (1/2 tsp salt in 8oz warm water) 3-4 times daily',
-            'Use humidifier in bedroom at night'
-        ],
+        'name': 'Common Cold',
+        'symptoms': ['runny_nose', 'sneezing', 'sore_throat', 'cough', 'congestion'],
+        'treatment': ['Rest and hydration', 'Over-the-counter cold medication'],
         'severity': 'Mild',
         'icon': '🤧'
     },
     'flu': {
         'name': 'Influenza (Flu)',
-        'symptoms': ['fever', 'chills', 'body_aches', 'fatigue', 'cough', 'headache', 'sore_throat', 'nasal_congestion', 'muscle_pain', 'weakness'],
-        'key_symptoms': ['fever', 'body_aches', 'fatigue'],
-        'treatment': [
-            'Bed rest and strict hydration (electrolyte solutions if dehydrated)',
-            'Acetaminophen 650mg every 6 hours for fever and myalgia',
-            'Ibuprofen 400-600mg every 6-8 hours for inflammation',
-            'Dextromethorphan 15-30mg every 6-8 hours for cough',
-            'Monitor for complications: pneumonia, bronchitis',
-            'Isolate to prevent spread (contagious for 5-7 days after symptoms)'
-        ],
-        'severity': 'Moderate to Severe',
+        'symptoms': ['fever', 'body_aches', 'fatigue', 'cough', 'headache'],
+        'treatment': ['Rest', 'Hydration', 'Antiviral medication if early'],
+        'severity': 'Moderate',
         'icon': '🤒'
     },
     'allergies': {
-        'name': 'Allergic Rhinitis (Hay Fever)',
-        'symptoms': ['sneezing', 'itchy_eyes', 'runny_nose', 'nasal_itching', 'watery_eyes', 'congestion', 'postnasal_drip', 'itchy_throat'],
-        'key_symptoms': ['sneezing', 'itchy_eyes', 'nasal_itching'],
-        'treatment': [
-            'Cetirizine 10mg daily or Loratadine 10mg daily (non-drowsy antihistamines)',
-            'Fluticasone nasal spray 1-2 sprays per nostril daily',
-            'Saline nasal irrigation twice daily with neti pot',
-            'Avoid known allergens: pollen, dust mites, pet dander',
-            'Use HEPA air filters in living spaces'
-        ],
-        'severity': 'Mild to Moderate',
+        'name': 'Allergies',
+        'symptoms': ['sneezing', 'itchy_eyes', 'runny_nose', 'congestion'],
+        'treatment': ['Antihistamines', 'Avoid allergens'],
+        'severity': 'Mild',
         'icon': '🌸'
-    },
-    'migraine': {
-        'name': 'Migraine Headache',
-        'symptoms': ['headache', 'nausea', 'sensitivity_light', 'sensitivity_sound', 'throbbing_pain', 'vision_changes', 'dizziness'],
-        'key_symptoms': ['headache', 'sensitivity_light', 'throbbing_pain'],
-        'treatment': [
-            'Rest in dark, quiet room immediately when symptoms begin',
-            'Ibuprofen 600mg or Naproxen 500mg for mild episodes',
-            'Cold compress to forehead and back of neck',
-            'Hydration with electrolyte solutions',
-            'Identify and avoid triggers: stress, certain foods, hormonal changes'
-        ],
-        'severity': 'Moderate to Severe',
-        'icon': '😵'
     }
 }
-
-EMERGENCY_SYMPTOMS = ['chest_pain', 'difficulty_breathing', 'severe_bleeding', 'loss_consciousness']
 
 @app.route('/')
 def home():
     return '''
     <!DOCTYPE html>
-    <html lang="en">
+    <html>
     <head>
+        <title>MediScan Pro - Health Diagnosis</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MediScan Pro - Health Diagnosis</title>
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
                 font-family: Arial, sans-serif;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh; color: white; line-height: 1.6;
-                padding: 20px;
+                min-height: 100vh;
+                color: white;
+                line-height: 1.6;
             }
-            .container { 
-                max-width: 800px; 
-                margin: 0 auto; 
-                text-align: center;
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
                 padding: 40px 20px;
+                text-align: center;
             }
-            h1 { 
-                font-size: 3rem; 
+            h1 {
+                font-size: 3rem;
                 margin-bottom: 1rem;
-                background: linear-gradient(45deg, #fff, #e0f2fe);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
             }
-            p { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; }
+            p {
+                font-size: 1.2rem;
+                margin-bottom: 2rem;
+                opacity: 0.9;
+            }
             .cta-button {
                 display: inline-block;
                 background: linear-gradient(45deg, #2563eb, #8b5cf6);
@@ -128,6 +94,7 @@ def home():
 
 @app.route('/symptoms')
 def symptoms():
+    # Get all symptoms
     all_symptoms = set()
     for condition in MEDICAL_CONDITIONS.values():
         all_symptoms.update(condition['symptoms'])
@@ -137,38 +104,128 @@ def symptoms():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Symptom Assessment</title>
+        <title>Symptom Assessment - MediScan Pro</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { font-family: Arial; margin: 40px; background: #f5f5f5; }
-            .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
-            .symptoms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-            .symptom { padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; }
-            .symptom.selected { background: #e3f2fd; border-color: #2196F3; }
-            .symptom.emergency { border-color: #f44336; background: #ffebee; }
-            .button { background: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; margin: 10px; }
-            .button:disabled { background: #ccc; cursor: not-allowed; }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                background: #f5f5f5;
+                color: #333;
+                line-height: 1.6;
+                padding: 20px;
+            }
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            h1 {
+                color: #2563eb;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .symptoms-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 10px;
+                margin: 20px 0;
+            }
+            .symptom {
+                padding: 15px;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                cursor: pointer;
+                text-align: center;
+                transition: all 0.3s ease;
+            }
+            .symptom:hover {
+                border-color: #2563eb;
+                transform: translateY(-2px);
+            }
+            .symptom.selected {
+                background: #e3f2fd;
+                border-color: #2196F3;
+            }
+            .button {
+                background: #4CAF50;
+                color: white;
+                padding: 15px 30px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                margin: 10px;
+                transition: background 0.3s;
+            }
+            .button:hover {
+                background: #45a049;
+            }
+            .button:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
+            .button.clear {
+                background: #ff9800;
+            }
+            .button.clear:hover {
+                background: #e68900;
+            }
+            #result {
+                margin-top: 30px;
+                padding: 20px;
+                border-radius: 8px;
+            }
+            .success {
+                background: #e8f5e8;
+                border-left: 4px solid #4CAF50;
+            }
+            .error {
+                background: #ffebee;
+                border-left: 4px solid #f44336;
+            }
         </style>
     </head>
     <body>
         <div class="container">
             <h1>Select Your Symptoms</h1>
+            <p style="text-align: center; margin-bottom: 20px; color: #666;">
+                Choose all symptoms you're currently experiencing
+            </p>
+            
             <div class="symptoms-grid" id="symptomsGrid">
     '''
     
+    # Add symptoms to grid
     for symptom in symptoms_list:
-        is_emergency = symptom in EMERGENCY_SYMPTOMS
         display_name = symptom.replace('_', ' ').title()
-        symptom_class = "symptom"
-        if is_emergency:
-            symptom_class += " emergency"
-        
-        symptoms_html += f'<div class="{symptom_class}" onclick="toggleSymptom(this)" data-symptom="{symptom}">{display_name}</div>'
+        symptoms_html += f'''
+                <div class="symptom" onclick="toggleSymptom(this)" data-symptom="{symptom}">
+                    {display_name}
+                </div>
+        '''
     
     symptoms_html += '''
             </div>
-            <button class="button" onclick="diagnose()" id="diagnoseBtn" disabled>Get Diagnosis</button>
-            <button class="button" onclick="clearSelection()" style="background: #ff9800;">Clear All</button>
-            <div id="result" style="margin-top: 30px;"></div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="button" onclick="diagnose()" id="diagnoseBtn" disabled>
+                    Get Diagnosis
+                </button>
+                <button class="button clear" onclick="clearSelection()">
+                    Clear All
+                </button>
+            </div>
+            
+            <div id="result"></div>
             
             <script>
                 let selectedSymptoms = [];
@@ -185,58 +242,76 @@ def symptoms():
                         element.classList.remove('selected');
                     }
                     
+                    // Update button state
                     document.getElementById('diagnoseBtn').disabled = selectedSymptoms.length === 0;
                 }
                 
                 function clearSelection() {
                     selectedSymptoms = [];
+                    // Remove selected class from all symptoms
                     document.querySelectorAll('.symptom').forEach(item => {
                         item.classList.remove('selected');
                     });
+                    // Disable diagnose button
                     document.getElementById('diagnoseBtn').disabled = true;
+                    // Clear results
                     document.getElementById('result').innerHTML = '';
                 }
                 
                 async function diagnose() {
-                    if (selectedSymptoms.length === 0) return;
+                    if (selectedSymptoms.length === 0) {
+                        alert('Please select at least one symptom');
+                        return;
+                    }
                     
                     const btn = document.getElementById('diagnoseBtn');
+                    const resultDiv = document.getElementById('result');
+                    
+                    // Show loading state
                     btn.disabled = true;
                     btn.textContent = 'Analyzing...';
+                    resultDiv.innerHTML = '<p>Analyzing your symptoms...</p>';
                     
                     try {
                         const response = await fetch('/diagnose', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ symptoms: selectedSymptoms })
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                symptoms: selectedSymptoms
+                            })
                         });
                         
                         if (!response.ok) {
-                            throw new Error('Server error: ' + response.status);
+                            throw new Error('Server responded with error: ' + response.status);
                         }
                         
                         const result = await response.json();
                         
-                        document.getElementById('result').innerHTML = `
-                            <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; border-left: 4px solid #4CAF50;">
-                                <h2>Diagnosis Result</h2>
-                                <p><strong>Condition:</strong> ${result.condition}</p>
-                                <p><strong>Confidence:</strong> ${result.confidence}%</p>
-                                <p><strong>Severity:</strong> ${result.severity}</p>
-                                <h3>Recommendations:</h3>
-                                <ul>
-                                    ${result.treatment.map(t => `<li>${t}</li>`).join('')}
-                                </ul>
-                            </div>
+                        // Display results
+                        resultDiv.className = 'success';
+                        resultDiv.innerHTML = `
+                            <h2>Diagnosis Result</h2>
+                            <p><strong>Condition:</strong> ${result.condition}</p>
+                            <p><strong>Confidence:</strong> ${result.confidence}%</p>
+                            <p><strong>Severity:</strong> ${result.severity}</p>
+                            <h3>Recommended Treatment:</h3>
+                            <ul>
+                                ${result.treatment.map(treatment => `<li>${treatment}</li>`).join('')}
+                            </ul>
+                            ${result.icon ? `<p style="font-size: 2rem; text-align: center; margin-top: 20px;">${result.icon}</p>` : ''}
                         `;
+                        
                     } catch (error) {
-                        document.getElementById('result').innerHTML = `
-                            <div style="background: #ffebee; padding: 20px; border-radius: 8px; border-left: 4px solid #f44336;">
-                                <h3>Error</h3>
-                                <p>${error.message}</p>
-                            </div>
+                        resultDiv.className = 'error';
+                        resultDiv.innerHTML = `
+                            <h3>Error</h3>
+                            <p>${error.message}</p>
+                            <p>Please try again or check your connection.</p>
                         `;
                     } finally {
+                        // Reset button
                         btn.disabled = false;
                         btn.textContent = 'Get Diagnosis';
                     }
@@ -252,7 +327,9 @@ def symptoms():
 @app.route('/diagnose', methods=['POST'])
 def diagnose():
     try:
+        # Get JSON data from request
         data = request.get_json()
+        
         if not data:
             return jsonify({'error': 'No data received'}), 400
             
@@ -261,68 +338,79 @@ def diagnose():
         if not user_symptoms:
             return jsonify({'error': 'No symptoms provided'}), 400
         
-        # Check for emergency symptoms
-        emergency_symptoms = [s for s in user_symptoms if s in EMERGENCY_SYMPTOMS]
-        if emergency_symptoms:
-            return jsonify({
-                'condition': '🚨 EMERGENCY - Immediate Medical Attention Required',
-                'severity': 'Critical',
-                'confidence': 100,
-                'treatment': [
-                    'Seek immediate medical attention',
-                    'Call emergency services or visit nearest ER',
-                    'Do not delay care for these symptoms'
-                ],
-                'matched_symptoms': len(emergency_symptoms),
-                'icon': '🚑'
-            })
+        print(f"Received symptoms: {user_symptoms}")  # For debugging
         
         # Find best matching condition
         best_match = None
         best_score = 0
         
         for condition_id, condition in MEDICAL_CONDITIONS.items():
-            key_matches = len(set(user_symptoms) & set(condition['key_symptoms']))
-            total_matches = len(set(user_symptoms) & set(condition['symptoms']))
-            total_possible = len(condition['symptoms'])
+            # Calculate match score
+            matches = len(set(user_symptoms) & set(condition['symptoms']))
+            total_symptoms = len(condition['symptoms'])
+            score = (matches / total_symptoms) * 100
             
-            base_score = (total_matches / total_possible) * 70
-            key_bonus = (key_matches / len(condition['key_symptoms'])) * 30
-            final_score = base_score + key_bonus
-            
-            if final_score > best_score:
-                best_score = final_score
+            if score > best_score:
+                best_score = score
                 best_match = condition_id
         
-        if best_match and best_score >= 40:
+        if best_match:
             condition = MEDICAL_CONDITIONS[best_match]
-            return jsonify({
+            result = {
                 'condition': condition['name'],
-                'severity': condition['severity'],
                 'confidence': round(best_score, 2),
                 'treatment': condition['treatment'],
-                'matched_symptoms': len(set(user_symptoms) & set(condition['symptoms'])),
-                'icon': condition['icon']
-            })
+                'severity': condition['severity'],
+                'icon': condition['icon'],
+                'matched_symptoms': len(set(user_symptoms) & set(condition['symptoms']))
+            }
         else:
-            return jsonify({
-                'condition': 'General Medical Condition',
-                'severity': 'Mild to Moderate',
-                'confidence': 60,
+            result = {
+                'condition': 'General Illness',
+                'confidence': 50,
                 'treatment': [
-                    'Rest and adequate hydration',
-                    'Over-the-counter symptom relief as needed',
-                    'Monitor for worsening symptoms',
-                    'Consult healthcare provider if no improvement in 48-72 hours'
+                    'Rest and hydration',
+                    'Monitor symptoms',
+                    'Consult healthcare provider if symptoms worsen'
                 ],
-                'matched_symptoms': len(user_symptoms),
-                'icon': '🤔'
-            })
-            
+                'severity': 'Mild',
+                'icon': '🤔',
+                'matched_symptoms': 0
+            }
+        
+        return jsonify(result)
+        
     except Exception as e:
+        print(f"Error in diagnosis: {str(e)}")  # For debugging
         return jsonify({'error': f'Diagnosis error: {str(e)}'}), 500
+
+# Add a catch-all route for 404 errors
+@app.route('/<path:path>')
+def catch_all(path):
+    return f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Page Not Found - MediScan Pro</title>
+        <style>
+            body {{ font-family: Arial; margin: 40px; text-align: center; }}
+            .container {{ max-width: 600px; margin: 0 auto; }}
+            h1 {{ color: #f44336; }}
+            .button {{ background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>404 - Page Not Found</h1>
+            <p>The page you're looking for doesn't exist.</p>
+            <a href="/" class="button">Return to Home</a>
+        </div>
+    </body>
+    </html>
+    ''', 404
 
 # Production configuration
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    debug = os.environ.get('DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=port, debug=debug)
