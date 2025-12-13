@@ -1,3 +1,0 @@
-[tool.poetry.dependencies]
-python = ">=3.9,<3.14"
-numpy = "^1.26"  # Use a version compatible with Python 3.13
