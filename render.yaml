@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: mediscan-static
+    env: static
+    buildCommand: echo "Building static site..."
+    startCommand: echo "Static site deployed successfully"
+    staticPublishPath: ./
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=3600
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
