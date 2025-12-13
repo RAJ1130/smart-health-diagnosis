@@ -1218,7 +1218,6 @@ def diagnose():
     except Exception as e:
         return jsonify({'error': f'Diagnosis error: {str(e)}'}), 500
 
-Production configuration
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
