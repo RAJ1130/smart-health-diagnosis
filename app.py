@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify, render_template, session
 import os
 
 app = Flask(__name__)
@@ -1116,6 +1116,10 @@ def symptoms():
 
 @app.route('/diagnose', methods=['POST'])
 def diagnose():
+    print("Debug: diagnose function called")
+    print(f"Debug: request object available: {'request' in globals()}")
+    print(f"Debug: jsonify object available: {'jsonify' in globals()}")
+def diagnose():
     try:
         data = request.get_json()
         user_symptoms = data.get('symptoms', [])
@@ -1220,7 +1224,7 @@ def diagnose():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=false)
 
 
 
