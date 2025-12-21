@@ -1116,10 +1116,6 @@ def symptoms():
 
 @app.route('/diagnose', methods=['POST'])
 def diagnose():
-    print("Debug: diagnose function called")
-    print(f"Debug: request object available: {'request' in globals()}")
-    print(f"Debug: jsonify object available: {'jsonify' in globals()}")
-def diagnose():
     try:
         data = request.get_json()
         user_symptoms = data.get('symptoms', [])
